@@ -6,16 +6,19 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-requests = "==2.22.0"
-docutils = "==0.16"
-pygments = "==2.5.2"
-pypiwin32 = "==223"
-kivy-deps-sdl2 = "==0.2.0"
-kivy-deps-angle = "==0.2.0"
+docutils = "*"
+pygments = "*"
+pypiwin32 = "*"
+kivy-deps-sdl2 = "==0.1.*"
 kivy = "==1.11.1"
-kivy-garden = "==0.1.4"
-pywin32 = "==227"
-urllib3 = "==1.25.7"
+kivy-deps-glew = "==0.1.*"
+pip = "*"
+wheel = "*"
+setuptools = "*"
+virtualenv = "*"
+beautifulsoup4 = "*"
+html5lib = "*"
+webscrape2 = {editable = true,path = "C:/Studio/Python/WeScrape2"}
 
 [requires]
 python_version = "3.6"
