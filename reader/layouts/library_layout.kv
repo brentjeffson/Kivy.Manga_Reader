@@ -1,0 +1,111 @@
+#:kivy 1.11.1
+
+<LibraryPage>:
+    orientation: "vertical"
+    keyword_input: keyword_input_view
+    nav_search_btn: nav_search_btn
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: 1, None
+        height: 30
+        
+        Spinner: 
+            size_hint: None, 1
+            width: 120
+            text_autoupdate: True
+            values: root.sources
+            on_text: root.on_source_change(self.text)
+
+        TextInput:
+            id: keyword_input_view
+            text: "survival"
+            hint_text: "All Hail The King"
+
+        Button:
+            id: nav_search_btn
+            text: "Search"
+            size_hint: None, 1
+            width: 60
+            on_press: root.search()
+
+<InfoPage>:
+    orientation: "vertical"
+    chapter_list: chapter_list_view
+    nav_library_btn: nav_library_btn
+
+    Button:
+        id: nav_library_btn
+        size_hint: 1, None
+        height: 30
+        text: "Library"
+
+    Label:
+        size_hint_y: None
+        height: 50
+        text: root.manga_title
+    
+    ChapterList:
+        id: chapter_list_view
+        viewclass: "ChapterListItem"
+
+        RecycleBoxLayout:
+            default_size_hint: 1, None
+            default_size: None, dp(56)
+            size_hint_y: None
+            height: self.minimum_height
+            orientation: "vertical"
+
+
+<SearchPage>:
+    orientation: "vertical"
+    search_list: search_list_view
+    nav_library_btn: nav_library_btn
+
+    Button:
+        id: nav_library_btn
+        text: "Library"
+        size_hint_y: None
+        height: 60
+    
+    SearchRecycleView:
+        id: search_list_view
+        viewclass: "SearchListItem"
+
+        RecycleBoxLayout:
+            default_size_hint: 1, None
+            default_size: None, dp(56)
+            size_hint_y: None
+            height: self.minimum_height
+            orientation: "vertical"
+
+<ImagePage>:
+    orientation: "vertical"
+    image_recycleview: image_recycleview
+    nav_library_btn: nav_library_btn
+    nav_info_btn: nav_info_btn
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: 1, None
+        height: 30
+
+        Button:
+            id: nav_library_btn
+            text: "Library"
+        
+        Button:
+            id: nav_info_btn
+            text: "Info"
+
+    ImageList:
+        id: image_recycleview
+        viewclass: "Image"
+
+        RecycleBoxLayout:
+            default_size_hint: 1, None
+            default_size: None, dp(56)
+            size_hint_y: None
+            height: self.minimum_height
+            orientation: "vertical"
+
