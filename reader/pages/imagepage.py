@@ -48,12 +48,10 @@ class ImagePage(BoxLayout):
                 image_byte = future.result()[0] 
                 filename = future.result()[1]
                 index = future.result()[2]
-
-                print(f"Image Downloaded -> {filename}")
+    
                 if image_byte is not None:
+                    print(f"Image Downloaded -> {filename}")
                     Clock.schedule_once(partial(self.update_images, image_byte, filename, index), 0)
-                else:
-                    print(f"Failed to Download -> {filename}")
 
     def download_image(self, image_url, index):
         global close_pools
@@ -80,9 +78,7 @@ class ImagePage(BoxLayout):
         split_filename = filename.split(".")
         ext = split_filename[len(split_filename)-1]
 
-        print("Converting Image Byte to Texture")
         texture = CoreImage(io.BytesIO(image_byte), ext=ext).texture
         self.image_recycleview.data[index] = {"texture": texture, "allow_stretch": True, "size": (600, 800)}
-        print("Done")
 
 
