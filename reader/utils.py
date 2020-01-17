@@ -2,16 +2,22 @@ from pathlib import Path
 from os import path, stat
 import requests
 
-
 BASE_DIR = path.dirname(__file__)
 LAYOUT_DIR = path.join(BASE_DIR, "layouts")
 
+LIBRARY_PATH = "library.json"
+DOWNLOAD_SETTINGS_PATH = "download_settings.json"
+
+URL = "url"
+TITLE = "title"
+SIZE = "size"
+ACTIVE_CHAPTER = "active_chapter"
+IMAGE_URL = "image_url"
+CONTENT_LENGTH = "content-length"
+TIMESTAMP = "timestamp"
+RESUMABLE = "resumable"
+
 class Download:
-    URL = "url"
-    SIZE = "size"
-    CONTENT_LENGTH = "content-length"
-    TIMESTAMP = "timestamp"
-    RESUMABLE = "resumable"
     
     def __init__(self, url, filename, content_length, resumable, timestamp):
         self._url = url
@@ -32,11 +38,11 @@ class Download:
     def dictionary(self):
         """convert Download Object into a dictionary"""
         return {self.filename: {
-                    Download.URL: self.url,
-                    Download.SIZE: self.size,
-                    Download.CONTENT_LENGTH: self.content_length,
-                    Download.RESUMABLE: self.resumable,
-                    Download.TIMESTAMP: self.timestamp,
+                    URL: self.url,
+                    SIZE: self.size,
+                    CONTENT_LENGTH: self.content_length,
+                    RESUMABLE: self.resumable,
+                    TIMESTAMP: self.timestamp,
                 }}
         
     @property
@@ -140,6 +146,51 @@ class Download:
         return download_settings
 
 
-
+class Library:
+    
+    def __init__(self, url, title, active_chapter, image_url):
+        self._url = url
+        self._title = title
+        self._active_chapter = active_chapter
+        self._image_url = image_url
+    
+    @staticmethod
+    def load(path):
+        """loads the specified path, returns an empty dict if file exists or has no content, otherwise returns the manga information"""
+        chk_result = check_file(path)
+        if chk_result == None or chk_result == False:
+            return {}
+            
+        with open(path, "rt") as f:
+            return json.loads(f.read())          
+            
+    def save(self, path):
+        """save current object to the specified path, return True if success else False"""
+        items = self.load(path)
+        item = {self.url:{
+            TITLE: self.title,
+            ACTIVE_CHAPTER: self.active_chapter,
+            IMAGE_URL: self.image_url
+        }}
+        items.update(item)
+        with open(path, "wt") as f:
+            f.write(json.dumps(items, indent=4))
+        return True
+    
+    @property
+    def url(self):
+        return self._url
+    
+    @property
+    def title(self):
+        return self._title
+    
+    @property
+    def active_chapter(self):
+        return self._active_chapter
+    
+    @property
+    def image_url(self):
+        return self._image_url
 
         
