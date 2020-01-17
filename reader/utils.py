@@ -7,6 +7,11 @@ BASE_DIR = path.dirname(__file__)
 LAYOUT_DIR = path.join(BASE_DIR, "layouts")
 
 class Download:
+    URL = "url"
+    SIZE = "size"
+    CONTENT_LENGTH = "content-length"
+    TIMESTAMP = "timestamp"
+    RESUMABLE = "resumable"
     
     def __init__(self, url, filename, content_length, resumable, timestamp):
         self._url = url
@@ -18,17 +23,22 @@ class Download:
     def __str__(self):
         return f"{self.filename}()"
     
-    @staticmethod
-    def dictionary(download):
-        return {download.filename: {
-                    "url": download.url,
-                    "size": download.size,
-                    "content-length": download.content_length,
-                    "resumable": download.resumable,
-                    "timestamp": download.timestamp,
+    def update_settings(self, filename):
+        downloads = Download.load(filename)
+        downloads.update(self.dictionary())
+        Download.save(filename, downloads)
+        return self
+    
+    def dictionary(self):
+        """convert Download Object into a dictionary"""
+        return {self.filename: {
+                    Download.URL: self.url,
+                    Download.SIZE: self.size,
+                    Download.CONTENT_LENGTH: self.content_length,
+                    Download.RESUMABLE: self.resumable,
+                    Download.TIMESTAMP: self.timestamp,
                 }}
         
-    
     @property
     def url(self):
         return self._url
@@ -47,24 +57,34 @@ class Download:
     
     @property
     def filename(self):
-        if self._filename is None:
-            if self._url[-1] == "":
-                self._url = self._url[:-1]
-            split = self.url.split("/")
-            return split[len(split)-1]
-
-        return self._filename
+        return self.parse_filename(self.url)
 
     @property
     def size(self):
         if not Path(self.filename).exists():
-            return False
+            return -1
         return os.stat(self.filename).st_size
     
     @property
     def extension(self):
         split = self.filename.split(".")
         return split[len(split)-1]
+    
+    @staticmethod
+    def parse_filename(url):
+        extensions = ["co", "org", "us", "com", "gov", "corp", "net", "int", 
+                      "mil", "edu", "gov", "ru", "biz", "info", "jobs", "mobi",
+                      "name", "ly", "tel", "kitchen", "email", "tech", "state",
+                      "xyz", "codes", "bargains", "bid", "expert"
+                     ]
+        while url[-1] == "/":
+            url = url[:-1]
+        filename = url.split("/")[len(url.split("/"))-1]
+        ext = filename.split(".")[len(filename.split("."))-1]
+        if ext in extensions:
+            filename += ".html"
+        
+        return filename
     
     @staticmethod
     def download(url, filename=None, headers={}, chunk_size=1024):
@@ -75,8 +95,12 @@ class Download:
             return None
 
         content_length = int(resp.headers["content-length"])
-        filename = parse_filename(url) if filename is None else filename
-        if Path(filename).exists() and "accept-ranges" in resp.headers:
+        resumable = "accept-ranges" in resp.headers
+        filename = Download.parse_filename(url) if filename is None else filename
+    
+        download = Download(url, filename, content_length, resumable, time.time()).update_settings("download_settings.json")
+        
+        if Path(filename).exists() and resumable:
             filesize = stat(filename).st_size
             if content_length > filesize:
                 print("Resuming Download...")
@@ -92,27 +116,20 @@ class Download:
         return True, 
     
     @staticmethod 
-    def save(settings_file, downloads, mode="w"):
-        unlisted_downloads = {}
-        for download in downloads:
-            unlisted_downloads[download.filename] = {
-                "url": download.url,
-                "size": download.size,
-                "content-length": download.content_length,
-                "resumable": download.resumable,
-                "timestamp": download.timestamp,
-            }
-                
-        with open(settings_file, mode) as f:
-            json.dump(unlisted_downloads, f)            
+    def save(settings_file, downloads):                
+        with open(settings_file, "wt") as f:
+            f.write(json.dumps(downloads, indent=4))
     
     @staticmethod
     def load(settings_file):
     
         if not Path(settings_file).exists():
             create_file(settings_file)
-            return None
+            return {}
 
+        if not os.stat(settings_file).st_size > 0:
+            return {}
+        
         download_settings = {}
         with open(settings_file, "rt") as f:
             download_settings = json.loads(f.read())
@@ -121,3 +138,8 @@ class Download:
             return None
 
         return download_settings
+
+
+
+
+        
