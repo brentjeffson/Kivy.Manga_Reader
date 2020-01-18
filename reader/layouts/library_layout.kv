@@ -8,6 +8,7 @@
     orientation: "vertical"
     keyword_input: keyword_input_view
     nav_search_btn: nav_search_btn
+    library_list: library_list_view
 
     BoxLayout:
         orientation: "horizontal"
@@ -32,6 +33,11 @@
             size_hint: None, 1
             width: 60
             on_press: root.search_page()
+    
+    GridLayout:
+        id: library_list_view
+        cols: 4
+        
 
 <InfoPage>:
     orientation: "vertical"
@@ -47,6 +53,9 @@
     
     BoxLayout:
         orientation: "horizontal"
+        size_hint_y: None
+        height: 200
+
         Image: 
             id: manga_image_view
             size: self.texture_size
@@ -58,8 +67,10 @@
                 size_hint_y: None
                 height: 50
             Button: 
-                text: "Add To Library" if True else "Remove From Library"
-                on_press: root.add_to_library()
+                text:  "Remove From Library" if root.archived else "Add To Library"
+                size_hint_y: None
+                height: 30
+                on_press:  root._remove_from_library() if root.archived else root._add_to_library()
             
     
     ChapterList:
