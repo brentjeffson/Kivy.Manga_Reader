@@ -44,6 +44,7 @@ class InfoPage(BoxLayout):
         if self.manga.url in library:
             print(f"Manga -> {self.manga.title} active chapter updated.")
             info = library[self.manga.url]
+
             if float(chapter_uid) > float(info[ACTIVE_CHAPTER]):
                 Library(self.manga.url, self.manga.title, chapter_uid, self.manga.image_url).save(LIBRARY_PATH)
 
@@ -52,11 +53,14 @@ class InfoPage(BoxLayout):
         self.manga_image_view.texture = None
         self.chapter_list.data = []
 
-    def __remove_from_library(self):
-        pass
+    def _remove_from_library(self):
+        removed_info = Library.remove(self.manga.url, LIBRARY_PATH)
+        self.archived = False
+        print(f"Removed -> {removed_info}")
 
     def _add_to_library(self):
-        Library(self.manga.url, self.manga.title, "", self.manga.image_url).save(LIBRARY_PATH)
+        Library(self.manga.url, self.manga.title, "0", self.manga.image_url).save(LIBRARY_PATH)
+        self.archived = True
 
     def _update_info(self, manga, image_byte, scraper, *_):
         self.manga_title = manga.title

@@ -168,14 +168,20 @@ class Library:
 
     @staticmethod
     def clear(path):
-        """clears all records from the given path
+        """Clears all records from the given path
         
         Args:
-            path (str): Required path to the records file
-        
+            path (str): Required path to the records file.
+
+        Returns:
+            bool: `True` for success, `False` otherwise.
         """
-        with open(path, "wt") as f:
-            f.write("")
+        try: 
+            with open(path, "wt") as f:
+                f.write("")
+            return True
+        except:
+            return False
         
     @staticmethod
     def remove(url_to_remove, path):
