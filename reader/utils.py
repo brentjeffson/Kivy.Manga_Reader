@@ -1,9 +1,10 @@
 from pathlib import Path
-from os import path, stat
+import os
+import json
 import requests
 
-BASE_DIR = path.dirname(__file__)
-LAYOUT_DIR = path.join(BASE_DIR, "layouts")
+BASE_DIR = os.path.dirname(__file__)
+LAYOUT_DIR = os.path.join(BASE_DIR, "layouts")
 
 LIBRARY_PATH = "library.json"
 DOWNLOAD_SETTINGS_PATH = "download_settings.json"
@@ -118,7 +119,7 @@ class Download:
         download = Download(url, filename, content_length, resumable, time.time()).update_settings("download_settings.json")
         
         if Path(filename).exists() and resumable:
-            filesize = stat(filename).st_size
+            filesize = os.stat(filename).st_size
             if content_length > filesize:
                 print("Resuming Download...")
                 headers['range'] = f"bytes={filesize}-{content_length}"
@@ -164,6 +165,44 @@ class Library:
         self._title = title
         self._active_chapter = active_chapter
         self._image_url = image_url
+
+    @staticmethod
+    def clear(path):
+        """clears all records from the given path
+        
+        Args:
+            path (str): Required path to the records file
+        
+        """
+        with open(path, "wt") as f:
+            f.write("")
+        
+    @staticmethod
+    def remove(url_to_remove, path):
+        """removes records of `url_to_remove` from the given path
+
+        Args:
+            url_to_remove (str): Required to use as reference for removing 
+            path (str): Required path to the records file
+            
+        Returns:
+            dict: returns empty `dict` if nothing was removed or returns the removed `dict` records
+        """
+        library = Library.load(path)
+        removed_library = {}
+        for url in library:
+            if url == url_to_remove:
+                removed_library = library.get(url)
+                library.pop(url)
+                break
+                
+        Library.clear(path)
+        
+        for url in library:
+            info = library[url]
+            print(info)
+            Library(url, info[TITLE], info[ACTIVE_CHAPTER], info[IMAGE_URL]).save(path)
+        return removed_library
     
     @staticmethod
     def load(path):
@@ -171,8 +210,8 @@ class Library:
         
         :params str path: directy path to the file containing library information
 
-        :returns:
-        :rtype:
+        :returns: a dict of information
+        :rtype: dict
         """
         chk_result = check_file(path)
         if chk_result == None or chk_result == False:
