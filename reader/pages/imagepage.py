@@ -25,6 +25,7 @@ class ImagePage(BoxLayout):
         self.app = app
 
     def cancel_tasks(self, page_name):
+        print(f"Canceling Tasks:Going To {page_name}")
         self.closing()
         self.app.page(page_name)
 
