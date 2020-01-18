@@ -64,8 +64,8 @@ class MangaReaderApp(App):
     def build(self):
         self.screen_manager = ScreenManager()
 
-        self.library_page = LibraryPage(app)
-        self.search_page = SearchPage()
+        self.library_page = LibraryPage(self)
+        self.search_page = SearchPage(self)
         self.info_page = InfoPage(self)
         self.image_page = ImagePage(self)
         
@@ -75,7 +75,6 @@ class MangaReaderApp(App):
         self._create_page(self.screen_manager, self.image_page, "Image")
 
         self.library_page.nav_search_btn.bind(on_press=partial(self.page, "Search"))
-        self.search_page.nav_library_btn.bind(on_press=partial(self.page, "Library"))
         self.info_page.nav_library_btn.bind(on_press=partial(self.page, "Library"))
 
         return self.screen_manager

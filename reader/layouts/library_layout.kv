@@ -31,18 +31,26 @@
             text: "Search"
             size_hint: None, 1
             width: 60
-            on_press: root.search()
+            on_press: root.search_page()
 
 <InfoPage>:
     orientation: "vertical"
     chapter_list: chapter_list_view
     nav_library_btn: nav_library_btn
+    manga_image_view: manga_image_view
 
     NavButton:
         id: nav_library_btn
         size_hint: 1, None
         height: 30
         text: "Library"
+    
+    BoxLayout:
+        orientation: "horizontal"
+        
+        Image: 
+            id: manga_image_view
+            size: self.texture_size
 
     Label:
         size_hint_y: None
@@ -107,11 +115,12 @@
     ImageList:
         id: image_recycleview
         viewclass: "Image"
-
+        scroll_distance: 500
         RecycleBoxLayout:
             default_size_hint: 1, None
             default_size: None, dp(56)
             size_hint_y: None
             height: self.minimum_height
             orientation: "vertical"
+            
 

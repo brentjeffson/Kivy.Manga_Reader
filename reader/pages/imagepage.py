@@ -31,6 +31,7 @@ class ImagePage(BoxLayout):
     def closing(self):
         global close_pools
         close_pools = True
+        self.image_recycleview.data = []
 
     def get_image_urls(self, chapter, scraper, *_):
         resp = requests.get(chapter.url)
@@ -40,27 +41,38 @@ class ImagePage(BoxLayout):
         threading.Thread(target=self.initiate_downloads, args=[image_urls], daemon=True).start()
 
     def initiate_downloads(self, image_urls, *_):
-    
+        global close_pools
+        close_pools = False
         Clock.schedule_once(partial(self.preload, len(image_urls)), 0)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
             results = [executor.submit(self.download_image, url, index) for index, url in enumerate(image_urls)]
 
             for future in concurrent.futures.as_completed(results):
-                if future.result() is None: break
-                image_byte = future.result()[0] 
-                filename = future.result()[1]
-                index = future.result()[2]
-    
-                if image_byte is not None:
-                    print(f"Image Downloaded -> {filename}")
-                    Clock.schedule_once(partial(self.update_images, image_byte, filename, index), 0)
+                
+                try:
+                    if future.result() is None: break
+                    
+                    image_byte = future.result()[0] 
+                    filename = future.result()[1]
+                    index = future.result()[2]
+
+                    if image_byte is not None:
+                        print(f"Image Downloaded -> {filename}")
+                        Clock.schedule_once(partial(self.update_images, image_byte, filename, index), 0)
+                except:
+                    print("Some Download Exception...")
+            
+        
+            print(f"All {len(image_urls)} tasks {'done' if not close_pools else 'cancelled'}.")
+
 
     def download_image(self, image_url, index):
         global close_pools
         if close_pools: 
             print(f"Cancelling Task -> Download({image_url})")
             return None
+        
         print(f"Downloading Image -> {image_url}")
         split_url = image_url.split("/")
         filename = split_url[len(split_url)-1]
@@ -69,7 +81,7 @@ class ImagePage(BoxLayout):
         image_byte = b""
         for chunk in resp.iter_content(chunk_size=1024):
             if close_pools:
-                print(f"Closing Task...{image_url}")
+                print(f"Cancelling Ongoing Task...{image_url}")
                 return None
             else: 
                 image_byte += chunk
