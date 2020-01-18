@@ -1,5 +1,9 @@
 #:kivy 1.11.1
 
+<NavButton@Button>:
+    size_hint: 1, None
+    height: 30
+
 <LibraryPage>:
     orientation: "vertical"
     keyword_input: keyword_input_view
@@ -34,7 +38,7 @@
     chapter_list: chapter_list_view
     nav_library_btn: nav_library_btn
 
-    Button:
+    NavButton:
         id: nav_library_btn
         size_hint: 1, None
         height: 30
@@ -62,11 +66,11 @@
     search_list: search_list_view
     nav_library_btn: nav_library_btn
 
-    Button:
+    NavButton:
         id: nav_library_btn
         text: "Library"
         size_hint_y: None
-        height: 60
+        height: 30
     
     SearchRecycleView:
         id: search_list_view
@@ -90,12 +94,12 @@
         size_hint: 1, None
         height: 30
 
-        Button:
+        NavButton:
             id: nav_library_btn
             text: "Library"
             on_press: root.cancel_tasks("Library")
         
-        Button:
+        NavButton:
             id: nav_info_btn
             text: "Info"
             on_press: root.cancel_tasks("Info")
