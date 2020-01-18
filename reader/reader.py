@@ -77,6 +77,8 @@ class MangaReaderApp(App):
         self.library_page.nav_search_btn.bind(on_press=partial(self.page, "Search"))
         self.search_page.nav_library_btn.bind(on_press=partial(self.page, "Library"))
         self.info_page.nav_library_btn.bind(on_press=partial(self.page, "Library"))
+        self.image_page.nav_library_btn.bind(on_press=partial(self.page, "Library"))
+        self.image_page.nav_info_btn.bind(on_press=partial(self.page, "Info"))
 
         return self.screen_manager
     

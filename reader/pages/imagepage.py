@@ -23,8 +23,10 @@ class ImagePage(BoxLayout):
     def __init__(self, app, **kwargs):
         super().__init__(**kwargs)
         self.app = app
-        self.nav_info_btn.bind(on_press=partial(self.app.page, "Info"))
-        self.nav_library_btn.bind(on_press=partial(self.app.page, "Library"))
+
+    def cancel_tasks(self, page_name):
+        self.closing()
+        self.app.page(page_name)
 
     def closing(self):
         global close_pools
@@ -45,6 +47,7 @@ class ImagePage(BoxLayout):
             results = [executor.submit(self.download_image, url, index) for index, url in enumerate(image_urls)]
 
             for future in concurrent.futures.as_completed(results):
+                if future.result() is None: break
                 image_byte = future.result()[0] 
                 filename = future.result()[1]
                 index = future.result()[2]
@@ -55,6 +58,9 @@ class ImagePage(BoxLayout):
 
     def download_image(self, image_url, index):
         global close_pools
+        if close_pools: 
+            print(f"Cancelling Task -> Download({image_url})")
+            return None
         print(f"Downloading Image -> {image_url}")
         split_url = image_url.split("/")
         filename = split_url[len(split_url)-1]
@@ -62,10 +68,12 @@ class ImagePage(BoxLayout):
         resp = requests.get(image_url)
         image_byte = b""
         for chunk in resp.iter_content(chunk_size=1024):
-            image_byte += chunk
             if close_pools:
-                print("Closing Pools...")
-                return None, None, None
+                print(f"Closing Task...{image_url}")
+                return None
+            else: 
+                image_byte += chunk
+        if close_pools: return None 
 
         return (image_byte, filename, index) if resp.ok else (None, None, None)
     
@@ -79,6 +87,11 @@ class ImagePage(BoxLayout):
         ext = split_filename[len(split_filename)-1]
 
         texture = CoreImage(io.BytesIO(image_byte), ext=ext).texture
-        self.image_recycleview.data[index] = {"texture": texture, "allow_stretch": True, "size": (600, 800)}
+        self.image_recycleview.data[index] = {
+            "texture": texture, 
+            "allow_stretch": True, 
+            "size": texture.size,
+            "size_hint": (None, None)
+        }
 
 

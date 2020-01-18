@@ -93,10 +93,12 @@
         Button:
             id: nav_library_btn
             text: "Library"
+            on_press: root.cancel_tasks("Library")
         
         Button:
             id: nav_info_btn
             text: "Info"
+            on_press: root.cancel_tasks("Info")
 
     ImageList:
         id: image_recycleview
