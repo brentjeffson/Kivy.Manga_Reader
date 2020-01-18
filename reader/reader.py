@@ -32,7 +32,8 @@ class ChapterListItem(RecycleDataViewBehavior, Button):
     def on_press(self):
         threading.Thread(target=partial(self.app.image_page.get_image_urls, self.chapter, self.scraper)).start()
         self.app.page("Image")
-        self.app.infopage.active_chapter = str(self.chapter.uid)
+        self.app.info_page.update_active_chapter(self.chapter.uid)
+
 
 class ImageList(RecycleView):
 
