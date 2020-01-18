@@ -1,6 +1,7 @@
 from functools import partial
 from os import path
 from utils import LAYOUT_DIR
+from utils import LIBRARY_PATH, Library
 
 from webscrape2.constants import Source
 from webscrape2.scraper import MangaScraper
@@ -31,6 +32,7 @@ class ChapterListItem(RecycleDataViewBehavior, Button):
     def on_press(self):
         threading.Thread(target=partial(self.app.image_page.get_image_urls, self.chapter, self.scraper)).start()
         self.app.page("Image")
+        self.app.infopage.active_chapter = str(self.chapter.uid)
 
 class ImageList(RecycleView):
 
@@ -56,10 +58,16 @@ class SearchRecycleView(RecycleView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.scroll_type =  ['bars']
+        self.bar_width: "25dp"
 
 
 class MangaReaderApp(App):
     navigation_tab = ObjectProperty()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        library = Library.load(LIBRARY_PATH)
 
     def build(self):
         self.screen_manager = ScreenManager()

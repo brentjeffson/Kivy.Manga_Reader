@@ -47,15 +47,20 @@
     
     BoxLayout:
         orientation: "horizontal"
-        
         Image: 
             id: manga_image_view
             size: self.texture_size
 
-    Label:
-        size_hint_y: None
-        height: 50
-        text: root.manga_title
+        BoxLayout:
+            orientation: "vertical"
+            Label:
+                text: root.manga_title
+                size_hint_y: None
+                height: 50
+            Button: 
+                text: "Add To Library" if True else "Remove From Library"
+                on_press: root.add_to_library()
+            
     
     ChapterList:
         id: chapter_list_view

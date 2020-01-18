@@ -17,6 +17,17 @@ CONTENT_LENGTH = "content-length"
 TIMESTAMP = "timestamp"
 RESUMABLE = "resumable"
 
+def check_file(path):
+    """check if file exists, returns None if path did not exist, returns False if it has no content but file exist."""
+    if not Path(path).exists():
+        open(path, "a+").close()
+        return None
+    
+    if os.stat(path).st_size <= 0:
+        return False
+    
+    return True
+
 class Download:
     
     def __init__(self, url, filename, content_length, resumable, timestamp):
@@ -156,7 +167,13 @@ class Library:
     
     @staticmethod
     def load(path):
-        """loads the specified path, returns an empty dict if file exists or has no content, otherwise returns the manga information"""
+        """loads the specified `path`, returns an empty dict if file exists or has no content, otherwise returns the manga information
+        
+        :params str path: directy path to the file containing library information
+
+        :returns:
+        :rtype:
+        """
         chk_result = check_file(path)
         if chk_result == None or chk_result == False:
             return {}
